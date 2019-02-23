@@ -16,6 +16,8 @@ import time
 
 
 # Use SnowballStemmer to stem input comments.
+from sklearn.tree import DecisionTreeClassifier
+
 ps = SnowballStemmer("english")
 # Use nltk's predefined stopword list as our stop_words set.
 stop_words = set(nltk.corpus.stopwords.words('english'))
@@ -91,7 +93,6 @@ def stem_words(data, linebreak=False, notcontract=True,
 
     return new_train
 
-prestart = time.time()
 new_train = stem_words(raw_x_train)
 
 X_train, X_test, y_train, y_test = train_test_split(new_train, y_train, train_size=0.8, test_size=0.2)
@@ -103,7 +104,6 @@ pclf = Pipeline([
     ('norm', Normalizer()),
     ('clf', LogisticRegression()),
 ])
-preend = time.time()
 
 fitstart = time.time()
 pclf.fit(X_train, y_train)
@@ -113,15 +113,13 @@ predstart = time.time()
 y_pred = pclf.predict(X_test)
 predend = time.time()
 
-end = time.time()
+print("Training Time: {}\nPrediction Time: {}".format(i, fitend-fitstart, predend-predstart))
 
-print("Pre-Process Time: {}\nTraining Time: {}\nPrediction Time: {}".format(preend-prestart,
-                                                                            fitend-fitstart, predend-predstart))
 print(metrics.classification_report(y_test, y_pred))
 
 
 
-#data_to_submit = pd.DataFrame({'Id': [i for i in range(len(y_pred))], 'Category': y_pred})
+data_to_submit = pd.DataFrame({'Id': [i for i in range(len(y_pred))], 'Category': y_pred})
 
-#data_to_submit.to_csv("./out.csv", index=False)
+data_to_submit.to_csv("./out.csv", index=False)
 
